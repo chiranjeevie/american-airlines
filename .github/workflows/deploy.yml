@@ -1,0 +1,58 @@
+name: Deploy to Azure App Service
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        runtime: ["JAVA|11", "DOTNETCORE|3.1"]
+        app_service_name: ["my-java-app", "my-dotnet-app"]
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Set up Terraform
+      uses: hashicorp/setup-terraform@v1
+      with:
+        terraform_version: 0.15.x
+
+    - name: Terraform Init
+      run: terraform init
+      env:
+        ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+        ARM_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
+        ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+        ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+
+    - name: Terraform Apply
+      run: terraform apply -auto-approve
+      env:
+        ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+        ARM_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
+        ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+        ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+
+    - name: Get Resource Group Name
+      run: echo "::set-env name=RESOURCE_GROUP_NAME::$(terraform output -json resource_group_name | jq -r '.')"
+
+    - name: Build and Deploy Java or .NET REST API
+      run: |
+        if [ "$runtime" == "JAVA|11" ]; then
+          cd java-rest-api
+          ./mvnw clean package
+          az webapp deployment source config-zip --resource-group $RESOURCE_GROUP_NAME --name $app_service_name --src target/*.jar
+        elif [ "$runtime" == "DOTNETCORE|3.1" ]; then
+          cd dotnet-rest-api
+          dotnet publish -c Release --output ./publish
+          az webapp deployment source config-zip --resource-group $RESOURCE_GROUP_NAME --name $app_service_name --src ./publish
+        fi
+      env:
+        app_service_name: ${{ matrix.app_service_name }}
+        runtime: ${{ matrix.runtime }}
