@@ -40,15 +40,19 @@ jobs:
         ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
 
     - name: Get Resource Group Name
-      run: echo "::set-env name=RESOURCE_GROUP_NAME::$(terraform output -json resource_group_name | jq -r '.')"
+      id: resource_group
+      run: echo "::set-output name=RESOURCE_GROUP_NAME::$(terraform output -json resource_group_name | jq -r '.')"
 
     - name: Build and Deploy Java or .NET REST API
       run: |
         if [ "$runtime" == "JAVA|11" ]; then
           cd java-rest-api
           ./mvnw clean package
-          az webapp deployment source config-zip --resource-group $RESOURCE_GROUP_NAME --name $app_service_name --src target/*.jar
-    
+          az webapp deployment source config-zip --resource-group ${{ steps.resource_group.outputs.RESOURCE_GROUP_NAME }} --name $app_service_name --src target/*.jar
+
+          # Get and print the App Service URL
+          app_service_url=$(az webapp show --resource-group ${{ steps.resource_group.outputs.RESOURCE_GROUP_NAME }} --name $app_service_name --query defaultHostName -o tsv)
+          echo "App Service URL: $app_service_url"
         fi
       env:
         app_service_name: ${{ matrix.app_service_name }}
