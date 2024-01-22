@@ -12,7 +12,7 @@ jobs:
     strategy:
       matrix:
         runtime: ["JAVA|11", "DOTNETCORE|3.1"]
-        app_service_name: ["my-java-app", "my-dotnet-app"]
+        app_service_name: ["my-java-app"]
 
     steps:
     - name: Checkout code
