@@ -16,7 +16,7 @@ provider "azurerm" {
 
 # Create a resource group
 resource "azurerm_resource_group" "american_airlines" {
-  name     = "american-tf-lines-resources"
+  name     = "american-lines-resources"
   location = "East US"
 }
 
@@ -29,8 +29,6 @@ resource "azurerm_service_plan" "american_airlines" {
   os_type   = "Linux"
   sku_name  = "B1"
 }
-
-
 
 # Create an App Service
 resource "azurerm_app_service" "american_airlines" {
