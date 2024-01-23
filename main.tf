@@ -16,13 +16,13 @@ provider "azurerm" {
 
 # Create a resource group
 resource "azurerm_resource_group" "american_airlines" {
-  name     = "american-lines-resources"
+  name     = "american-tf-lines-resources"
   location = "East US"
 }
 
 # Create an App Service Plan
 resource "azurerm_service_plan" "american_airlines" {
-  name                = "american-airlines-app-serviceplan"
+  name                = "american-tf-airlines-app-serviceplan"
   location            = azurerm_resource_group.american_airlines.location
   resource_group_name = azurerm_resource_group.american_airlines.name
 
