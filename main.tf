@@ -16,30 +16,28 @@ provider "azurerm" {
 
 # Create a resource group
 resource "azurerm_resource_group" "american_airlines" {
-  name     = "american-airlines-resources"
+  name     = "american-lines-resources"
   location = "East US"
 }
 
 # Create an App Service Plan
-resource "azurerm_app_service_plan" "american_airlines" {
-  name                = "american-airlines-appserviceplan"
+resource "azurerm_service_plan" "american_airlines" {
+  name                = "american-airlines-app-serviceplan"
   location            = azurerm_resource_group.american_airlines.location
   resource_group_name = azurerm_resource_group.american_airlines.name
-  kind                = "Linux"
-  reserved            = true
 
-  sku {
-    tier = "Basic"
-    size = "B1"
-  }
+  os_type   = "Linux"
+  sku_name  = "B1"
 }
+
+
 
 # Create an App Service
 resource "azurerm_app_service" "american_airlines" {
   name                = var.app_service_name
   location            = azurerm_resource_group.american_airlines.location
   resource_group_name = azurerm_resource_group.american_airlines.name
-  app_service_plan_id = azurerm_app_service_plan.american_airlines.id
+  app_service_plan_id = azurerm_service_plan.american_airlines.id
 
   site_config {
     # Use conditional logic based on the specified runtime

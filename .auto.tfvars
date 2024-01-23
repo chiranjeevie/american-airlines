@@ -1,2 +1,2 @@
-app_service_name = "my-java-app"
+app_service_name = "my-java-app-xvdsv"
 runtime         = "JAVA|11"
