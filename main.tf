@@ -42,6 +42,11 @@ variable "location" {
   type        = string
 }
 
+variable "container" {
+  description = "Container name"
+  type        = string
+}
+
 variable "resource_group_name" {
   description = "Resource group name"
   type        = string
@@ -49,23 +54,18 @@ variable "resource_group_name" {
 
 # Output the container name
 output "container_name" {
-  value = azurerm_storage_container.tfstate_container.name
+  value = "test_container"
 }
 
 # Output the storage account name
 output "storage_account_name" {
-  value = azurerm_storage_account.tfstate_storage.name
+  value = var.storage_account_name
 }
 
 # Azure provider
 provider "azurerm" {
   features {}
 }
-
-# Configure Terraform backend for Azure Storage
-variable "backend_resource_group_name" {}
-variable "backend_storage_account_name" {}
-variable "backend_container_name" {}
 
 # Configure Terraform backend for Azure Storage
 terraform {
