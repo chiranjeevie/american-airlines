@@ -34,8 +34,7 @@ jobs:
         terraform init \
           -backend-config="storage_account_name=${storage_account_name}" \
           -backend-config="container_name=${container_name}" \
-          -backend-config="client_id=${client_id}" \
-          -backend-config="clieate"
+          -backend-config="client_id=${client_id}" 
 
       env:
         ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
