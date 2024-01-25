@@ -3,7 +3,7 @@ name: Deploy to Azure App Service
 on:
   push:
     branches:
-      - main
+      - with-storage
 
 jobs:
   deploy:
@@ -36,7 +36,7 @@ jobs:
           -backend-config="container_name=${container_name}" \
           -backend-config="client_id=${client_id}" \
           -backend-config="clieate"
-          
+
       env:
         ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
         ARM_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
