@@ -24,18 +24,19 @@ jobs:
         terraform_version: 0.15.x
 
     - name: Terraform Init  & Configure Azure Storage Backend
+      env:
+        ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+        ARM_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
+        ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+        ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
       run: |
         container_name=$(terraform output -raw container_name)
         storage_account_name=$(terraform output -raw storage_account_name)
         echo container_name
         echo storage_account_name
 
-        client_id=${{ secrets.AZURE_CLIENT_ID }}
-        client_secret=${{ secrets.AZURE_CLIENT_SECRET }}
-        tenant_id=${{ secrets.AZURE_TENANT_ID }}
-
-        terraform init -reconfigure \
-          -backend-config="client_id=${client_id}" 
+        terraform init -reconfigure 
+        
     - name: Debugging
       run: |
             echo "Debug info"
