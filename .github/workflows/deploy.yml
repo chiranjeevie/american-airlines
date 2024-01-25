@@ -34,6 +34,8 @@ jobs:
         client_secret=${{ secrets.AZURE_CLIENT_SECRET }}
         tenant_id=${{ secrets.AZURE_TENANT_ID }}
 
+        terraform init -reconfigure \
+          -backend-config="client_id=${client_id}" 
     - name: Debugging
       run: |
             echo "Debug info"
