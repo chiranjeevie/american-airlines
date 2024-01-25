@@ -1,2 +1,7 @@
 app_service_name = "my-java-app-xvdsv"
 runtime         = "JAVA|11"
+storage_account_name = "staffingsre-storae"
+subnet_address_prefix = "10.0.1.0/24"
+resource_group_name = ""
+location = ""
+vnet_address_space = ""
