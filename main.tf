@@ -73,7 +73,7 @@ terraform {
     resource_group_name   = "fhdf" 
     storage_account_name   = "dfhd"
     container_name         = "dfhdf"
-    key                    = "srepoc.terraform.tfstate"
+    key                    = "terraform.tfstate"
   }
 }
 
