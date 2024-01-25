@@ -34,8 +34,9 @@ variable "subnet_address_prefix" {
 variable "vnet_address_space" {
   description = "Address space for the Virtual Network"
   type        = list(string)
-  default     = ["10.0.0.0/16"]
+  default     = ["10.0.0.0/16"]  # Corrected address space
 }
+
 
 variable "location" {
   description = "Resource group location"
@@ -70,39 +71,23 @@ provider "azurerm" {
 # Configure Terraform backend for Azure Storage
 terraform {
   backend "azurerm" {
-    resource_group_name   = "fhdf" 
-    storage_account_name   = "dfhd"
-    container_name         = "dfhdf"
+    resource_group_name   = "american-lines-resources"
+    storage_account_name   = "chirustorageaccount"
+    container_name         = "chiru-test-storage-container"
     key                    = "terraform.tfstate"
   }
 }
 
-# Query existing Virtual Network
-data "azurerm_virtual_network" "existing_vnet" {
-  name                = var.vnet_name
-  resource_group_name = var.resource_group_name
-}
-
-# Query existing Subnet within the Virtual Network
-data "azurerm_subnet" "existing_subnet" {
-  name                 = var.subnet_name
-  virtual_network_name = data.azurerm_virtual_network.existing_vnet.name
-  resource_group_name  = var.resource_group_name
-}
-
-# If Virtual Network doesn't exist, create it
+# Create Virtual Network
 resource "azurerm_virtual_network" "vnet" {
-  count               = data.azurerm_virtual_network.existing_vnet ? 0 : 1
   name                = var.vnet_name
   address_space       = var.vnet_address_space
   location            = var.location
   resource_group_name = var.resource_group_name
 }
 
-
-# If Subnet doesn't exist, create it within the Virtual Network
+# Create Subnet within the Virtual Network
 resource "azurerm_subnet" "subnet" {
-  count                = data.azurerm_subnet.existing_subnet ? 0 : 1
   name                 = var.subnet_name
   resource_group_name  = var.resource_group_name
   virtual_network_name = azurerm_virtual_network.vnet.name
@@ -111,7 +96,7 @@ resource "azurerm_subnet" "subnet" {
 
 # Create an App Service Plan
 resource "azurerm_service_plan" "american_airlines" {
-  name                = "american-airlines-app-serviceplan"
+  name                = "american-airlines-app-serviceplan-chiru-test"
   location            = var.location
   resource_group_name = var.resource_group_name
 
@@ -122,9 +107,9 @@ resource "azurerm_service_plan" "american_airlines" {
 # Create an App Service
 resource "azurerm_app_service" "american_airlines" {
   name                = var.app_service_name
-  location            = azurerm_resource_group.american_airlines.location
+  location            = var.location
   resource_group_name = var.resource_group_name
-  app_service_plan_id = azurerm_service_plan.american_airlines.id
+  app_service_plan_id = azurerm_service_plan.american_airlines.id  # Correct reference to the App Service Plan
 
   site_config {
     # Use conditional logic based on the specified runtime
@@ -134,6 +119,8 @@ resource "azurerm_app_service" "american_airlines" {
   # Connect the App Service to the Subnet
   depends_on = [azurerm_subnet.subnet]
 }
+
+
 
 # Output the resource group name
 output "resource_group_name" {
