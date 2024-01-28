@@ -1,10 +1,12 @@
-app_service_name = "my-java-app-xvdsv"
+app_service_name = "my-java-app-xvdsv-2"
 runtime         = "JAVA|11"
 storage_account_name = "chirustorageaccount"
 subnet_address_prefix = ["10.0.1.0/24"]
-resource_group_name = "american-tf-1-lines-resources"
+resource_group_name = "existing_rg_1"
 location = "East US"
 vnet_address_space = ["10.0.0.0/16"]
 container = "chiru-test-storage-container"
-subnet_name = "chiru-test-subnet"
-vnet_name = "chiru-test-vnet"
+subnet_name = "existing-subnet-2"
+vnet_name = "existing-network-2"
+create_new_vnet = true
+subscription_id = "8ba51814-bb48-4d21-b5a3-668f0732ce91"

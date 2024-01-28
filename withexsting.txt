@@ -89,7 +89,7 @@ terraform {
     resource_group_name   = "american-tf-1-lines-resources"
     storage_account_name   = "chirustorageaccount"
     container_name         = "chiru-test-storage-container"
-    key                    = "new_terraform.tfstate"
+    key                    = "terraform.tfstate"
   }
 }
 
@@ -102,6 +102,7 @@ resource "azurerm_virtual_network" "vnet" {
 }
 
 resource "azurerm_subnet" "subnet" {
+  count                = length(data.azurerm_subnet.existing_subnet) > 0 ? 0 : 1
   name                 = var.subnet_name
   resource_group_name  = var.resource_group_name
   virtual_network_name = var.vnet_name
@@ -110,15 +111,12 @@ resource "azurerm_subnet" "subnet" {
   depends_on = [azurerm_virtual_network.vnet]
 }
 
-data "azurerm_resource_group" "existing_rg" {
-  count = var.resource_group_name != "" ? 1 : 0
-  name  = var.resource_group_name
-}
 
-resource "azurerm_resource_group" "new_rg" {
-  count     = var.resource_group_name == "" ? 1 : 0
-  name      = var.resource_group_name != "" ? var.resource_group_name : "default-rg"
-  location  = var.location
+
+# Create a resource group
+resource "azurerm_resource_group" "existing_rg" {
+  name     = "existing_rg_1"
+  location = "East US"
 }
 
 # Create an App Service Plan
@@ -148,11 +146,57 @@ resource "azurerm_app_service" "american_airlines" {
 
   # Associate with the Subnet in the Virtual Network
   app_settings = {
-    WEBSITES_SUBNET_ID = azurerm_subnet.subnet.id  
+    WEBSITES_SUBNET_ID = azurerm_subnet.subnet[0].id  
   }
 }
 
 
+
+# Query existing Subnet within the Virtual Network
+data "azurerm_subnet" "existing_subnet" {
+  name                 = var.subnet_name
+  resource_group_name  = var.resource_group_name
+  virtual_network_name = var.vnet_name
+}
+
+# Define a local variable to check if the Subnet exists
+locals {
+  subnet_exists = length(data.azurerm_subnet.existing_subnet) > 0
+}
+
+# Conditionally run import based on whether the Subnet exists
+resource "null_resource" "import_subnet" {
+  triggers = {
+    subnet_exists = local.subnet_exists
+  }
+
+  provisioner "local-exec" {
+    command = local.subnet_exists ? "terraform import azurerm_subnet.my_subnet /subscriptions/${var.subscription_id}/resourceGroups/${var.resource_group_name}/providers/Microsoft.Network/virtualNetworks/${var.vnet_name}/subnets/${var.subnet_name}" : "echo 'Subnet already exists, skipping import'"
+  }
+}
+
+
+
+# Query existing Virtual Network
+data "azurerm_virtual_network" "existing_vnet" {
+  name                 = var.subnet_name
+  resource_group_name  = var.resource_group_name
+}
+
+locals {
+  vnet_exists = length(data.azurerm_virtual_network.existing_vnet) > 0
+}
+
+# Conditionally run import based on whether the Virtual Network exists
+resource "null_resource" "import_vnet" {
+  triggers = {
+    vnet_exists = data.azurerm_virtual_network.existing_vnet ? true : false
+  }
+
+  provisioner "local-exec" {
+    command = local.vnet_exists ? "terraform import azurerm_virtual_network.existing_vnet /subscriptions/${var.subscription_id}/resourceGroups/${var.resource_group_name}/providers/Microsoft.Network/virtualNetworks/${var.vnet_name}" : "echo 'VNET already exists, skipping import'"
+  }
+}
 
 # Output the resource group name
 output "resource_group_name" {
