@@ -23,8 +23,6 @@ jobs:
       with:
         terraform_version: 0.15.x
 
-
-
     - name: Terraform Init  
       run: terraform init
       env:
@@ -32,7 +30,6 @@ jobs:
         ARM_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
         ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
         ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
-        TF_STATE_FILE: ${{ runner.workspace }}/terraform.tfstate
 
     - name: Terraform Apply
       run: terraform apply -auto-approve
@@ -41,7 +38,6 @@ jobs:
         ARM_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
         ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
         ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
-        TF_STATE_FILE: ${{ runner.workspace }}/terraform.tfstate
 
     - name: Get Resource Group Name
       id: resource_group
