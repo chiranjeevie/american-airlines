@@ -1,5 +1,4 @@
 name: Terraform Apply and Destroy
-
 on:
   workflow_dispatch:
     inputs:        
