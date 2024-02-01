@@ -1,5 +1,4 @@
 name: Terraform Apply and Destroy
-
 on:
   push:
     branches:
@@ -16,73 +15,46 @@ on:
           - destroy
 
 jobs:
-  deploy:
+  terraform:
     runs-on: ubuntu-latest
 
-    strategy:
-      matrix:
-        runtime: ["JAVA|11"]
-        app_service_name: ["my-java-app"]
-
     steps:
-    - name: Checkout code
+    - name: Checkout repository
       uses: actions/checkout@v2
 
     - name: Set up Terraform
       uses: hashicorp/setup-terraform@v1
-      with:
-        terraform_version: 0.15.x
 
-    - name: Terraform Init  & Configure Azure Storage Backend
+    - name: Initialize Terraform
+      run: terraform init
+      env:
+        ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+        ARM_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
+        ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+        ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+
+    - name: Terraform Apply or Destroy
       env:
         ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
         ARM_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
         ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
         ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
       run: |
-        container_name=$(terraform output -raw container_name)
-        storage_account_name=$(terraform output -raw storage_account_name)
-        echo "container_name 1: $container_name"
-        echo "storage_account_name 1: $storage_account_name"
-
-        terraform init -backend-config="resource_group_name=test_group" \
-        -backend-config="storage_account_name=test_account" \
-        -backend-config="container_name=test_account" \
-        -backend-config="key=terraform.tfstate"
-
-    - name: Debugging
-      run: |
-            echo "Debug info"
-            terraform debug
-      env:
-        ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
-        ARM_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
-        ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-        ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
-
-    - name: Terraform Apply
-      run: terraform apply -auto-approve
-      env:
-        ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
-        ARM_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
-        ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-        ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
-
+        if [ "${{ github.event.inputs.action }}" == "apply" ]; then
+          terraform apply  -auto-approve
+        elif [ "${{ github.event.inputs.action }}" == "destroy" ]; then
+          terraform destroy  -auto-approve
+        else
+          echo "Invalid action specified. Please choose 'apply' or 'destroy'."
+          exit 1
+        fi
     - name: Get Resource Group Name
       id: resource_group
       run: echo "::set-output name=RESOURCE_GROUP_NAME::$(terraform output -json resource_group_name | jq -r '.')"
-
     - name: Build and Deploy Java or .NET REST API
       run: |
-        if [ "$runtime" == "JAVA|11" ]; then
-          cd java-rest-api
-          ./mvnw clean package
-          az webapp deployment source config-zip --resource-group ${{ steps.resource_group.outputs.RESOURCE_GROUP_NAME }} --name $app_service_name --src target/*.jar
-
-          # Get and print the App Service URL
-          app_service_url=$(az webapp show --resource-group ${{ steps.resource_group.outputs.RESOURCE_GROUP_NAME }} --name $app_service_name --query defaultHostName -o tsv)
-          echo "App Service URL: $app_service_url"
-        fi
+        # place holder for java or .net app deploy to app service
+        
       env:
         app_service_name: ${{ matrix.app_service_name }}
         runtime: ${{ matrix.runtime }}
