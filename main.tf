@@ -64,7 +64,11 @@ variable "create_new_vnet" {
 
 # Output the container name
 output "container_name" {
-  value = "test_container"
+  value = ""
+}
+
+output "app_service_url" {
+  value = ""
 }
 
 # Output the storage account name
