@@ -1,9 +1,19 @@
-name: Deploy to Azure App Service
+name: Terraform Apply and Destroy
 
 on:
   push:
     branches:
       - main
+      - testing_dispatch
+  workflow_dispatch:
+    inputs:        
+      action:
+        type: choice
+        required: true
+        description: select terraform action
+        options:
+          - apply
+          - destroy
 
 jobs:
   deploy:
