@@ -133,7 +133,6 @@ resource "azurerm_linux_web_app" "american_airlines" {
 
   site_config {
     # Use conditional logic based on the specified runtime
-    linux_fx_version = var.runtime == "JAVA|11" ? "JAVA|11" : "DOTNETCORE|3.1"
   }
 
   # Connect the App Service to the Subnet
@@ -150,3 +149,6 @@ output "resource_group_name" {
   value = var.resource_group_name
 }
 
+output "runtime" {
+  value = var.runtime
+}
