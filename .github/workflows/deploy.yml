@@ -3,7 +3,7 @@ name: Terraform Apply and Destroy
 on:
   workflow_dispatch:
     inputs:        
-      choice:
+      action:
         type: choice
         required: true
         description: select terraform action
