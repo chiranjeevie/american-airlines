@@ -67,10 +67,6 @@ output "container_name" {
   value = ""
 }
 
-output "app_service_url" {
-  value = ""
-}
-
 # Output the storage account name
 output "storage_account_name" {
   value = var.storage_account_name
@@ -90,7 +86,6 @@ terraform {
     key                    = "new_terraform.tfstate"
   }
 }
-
 
 resource "azurerm_virtual_network" "vnet" {
   name                = var.vnet_name
@@ -150,13 +145,8 @@ resource "azurerm_linux_web_app" "american_airlines" {
   }
 }
 
-
-
 # Output the resource group name
 output "resource_group_name" {
   value = var.resource_group_name
 }
 
-output "app_service_url" {
-  value = azurerm_linux_web_app.american_airlines.default_site_hostname
-}
