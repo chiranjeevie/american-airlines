@@ -25,14 +25,14 @@ jobs:
       uses: hashicorp/setup-terraform@v1
 
     - name: Initialize Terraform
-      run: terraform init
+      run: terraform init  -auto-approve
 
     - name: Terraform Apply or Destroy
       run: |
         if [ "${{ github.event.inputs.action }}" == "apply" ]; then
-          terraform apply
+          terraform apply  -auto-approve
         elif [ "${{ github.event.inputs.action }}" == "destroy" ]; then
-          terraform destroy
+          terraform destroy  -auto-approve
         else
           echo "Invalid action specified. Please choose 'apply' or 'destroy'."
           exit 1
