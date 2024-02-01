@@ -1,5 +1,9 @@
 name: Terraform Apply and Destroy
 on:
+  push:
+    branches:
+      - main
+      - testing_dispatch
   workflow_dispatch:
     inputs:        
       action:
