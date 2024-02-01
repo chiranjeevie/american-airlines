@@ -6,6 +6,12 @@ on:
       action:
         description: 'Select Terraform action'
         required: true
+      choice:
+        type: choice
+        description: select terraform action
+        options:
+          - apply
+          - destroy
 
 jobs:
   terraform:
