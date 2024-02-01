@@ -50,8 +50,8 @@ jobs:
       run: echo "::set-output name=RESOURCE_GROUP_NAME::$(terraform output -json resource_group_name | jq -r '.')"
     - name: Build and Deploy Java or .NET REST API
       run: |
-        if [ "$runtime" == "JAVA|11" ]; then
-        fi
+        # place holder for java or .net app deploy to app service
+        
       env:
         app_service_name: ${{ matrix.app_service_name }}
         runtime: ${{ matrix.runtime }}
