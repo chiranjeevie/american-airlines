@@ -154,5 +154,5 @@ output "resource_group_name" {
 }
 
 output "app_service_url" {
-  value = azurerm_app_service.american_airlines.default_site_hostname
+  value = azurerm_linux_web_app.american_airlines.default_site_hostname
 }
