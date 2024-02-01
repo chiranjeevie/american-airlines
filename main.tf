@@ -23,16 +23,10 @@ variable "subnet_name" {
   type        = string
 }
 
-
-
-
 variable "subscription_id" {
   description = "Name of the Subnet"
   type        = string
 }
-
-
-
 
 
 variable "subnet_address_prefix" {
@@ -132,11 +126,11 @@ resource "azurerm_service_plan" "american_airlines" {
 }
 
 # Create an App Service
-resource "azurerm_app_service" "american_airlines" {
+resource "azurerm_linux_web_app" "american_airlines" {
   name                = var.app_service_name
   location            = var.location
   resource_group_name = var.resource_group_name
-  app_service_plan_id = azurerm_service_plan.american_airlines.id
+  service_plan_id = azurerm_service_plan.american_airlines.id
 
   site_config {
     # Use conditional logic based on the specified runtime

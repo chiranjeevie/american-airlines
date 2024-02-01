@@ -1,48 +1,33 @@
-name: Deploy to Azure App Service
+name: Terraform Apply and Destroy
 
 on:
-  push:
-    branches:
-      - main
+  workflow_dispatch:
+    inputs:
+      action:
+        description: 'Select Terraform action'
+        required: true
 
 jobs:
-  deploy:
+  terraform:
     runs-on: ubuntu-latest
 
-    strategy:
-      matrix:
-        runtime: ["JAVA|11"]
-        app_service_name: ["my-java-app"]
-
     steps:
-    - name: Checkout code
+    - name: Checkout repository
       uses: actions/checkout@v2
 
     - name: Set up Terraform
       uses: hashicorp/setup-terraform@v1
-      with:
-        terraform_version: 0.15.x
 
-    - name: Terraform Init  
+    - name: Initialize Terraform
       run: terraform init
-      env:
-        ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
-        ARM_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
-        ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-        ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
 
-    - name: Terraform Apply
-      run: terraform apply -auto-approve
-      env:
-        ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
-        ARM_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
-        ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-        ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
-
-    - name: Get Resource Group Name
-      id: resource_group
-      run: echo "::set-output name=RESOURCE_GROUP_NAME::$(terraform output -json resource_group_name | jq -r '.')"
-
-      env:
-        app_service_name: ${{ matrix.app_service_name }}
-        runtime: ${{ matrix.runtime }}
+    - name: Terraform Apply or Destroy
+      run: |
+        if [ "${{ github.event.inputs.action }}" == "apply" ]; then
+          terraform apply
+        elif [ "${{ github.event.inputs.action }}" == "destroy" ]; then
+          terraform destroy
+        else
+          echo "Invalid action specified. Please choose 'apply' or 'destroy'."
+          exit 1
+        fi
